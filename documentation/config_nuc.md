@@ -30,4 +30,14 @@ $ id
 uid=1001(fab) gid=1001(fab) groupes=1001(fab),27(sudo)
 ```
 
+## création base de données
+
+
+```
+$ cd database
+$ mysql -u dba -p
+
+mysql> source creation.sql
+
+```
 
