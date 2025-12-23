@@ -1,0 +1,13 @@
+https://docs.niryo.com/niryostudio/interface/python/
+
+Howto video: https://academy.niryo.com/course/index.php?categoryid=12
+FAQ: https://academy.niryo.com/mod/data/view.php?id=233
+
+
+https://niryorobotics.github.io/pyniryo/v1.2.0-1/index.html
+https://niryorobotics.github.io/pyniryo/v1.2.0-1/api/api.html
+https://niryorobotics.github.io/pyniryo/v1.2.0-1/api/vision.html
+
+https://niryo.com/fr/produit/bras-robotise-6-axes/
+
+https://niryo.com/resources/download-center/
