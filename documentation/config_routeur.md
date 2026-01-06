@@ -32,3 +32,6 @@ password: IRUP-42/Niryo
 | 192.168.0.253  | fin DHCP |
 | 192.168.0.255  | broadcast |
 
+## scan du réseau du robot
+
+nmap -sn 192.168.0.0/24
