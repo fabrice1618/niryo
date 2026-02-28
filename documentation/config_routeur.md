@@ -21,17 +21,17 @@ password: IRUP-42/Niryo
 
 | Adresses | |
 |----------|-|
-| 192.168.0.1  | Gateway |
-| 192.168.0.2  | Serveur |
-| 192.168.0.11  | Robot 1 |
-| 192.168.0.12  | Robot 2 |
-| 192.168.0.13  | Robot 3 |
-| 192.168.0.14  | Robot 4 |
-| 192.168.0.15  | Robot 5 |
-| 192.168.0.20  | début DHCP |
-| 192.168.0.253  | fin DHCP |
-| 192.168.0.255  | broadcast |
+| 192.168.1.1  | Gateway |
+| 192.168.1.3  | Serveur |
+| 192.168.1.11  | Robot 1 |
+| 192.168.1.12  | Robot 2 |
+| 192.168.1.13  | Robot 3 |
+| 192.168.1.14  | Robot 4 |
+| 192.168.1.15  | Robot 5 |
+| 192.168.1.20  | début DHCP |
+| 192.168.1.253  | fin DHCP |
+| 192.168.1.255  | broadcast |
 
 ## scan du réseau du robot
 
-nmap -sn 192.168.0.0/24
+nmap -sn 192.168.1.0/24
