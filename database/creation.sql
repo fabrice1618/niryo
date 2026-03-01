@@ -32,22 +32,8 @@ GRANT SELECT ON robot4.* TO 'grafana_reader'@'localhost';
 -- Appliquer les privilèges
 FLUSH PRIVILEGES;
 
--- Création table MESURES dans robot1
-USE robot1;
-
-CREATE TABLE IF NOT EXISTS mesures (
-    mesure_id INT AUTO_INCREMENT PRIMARY KEY,
-    timestamp DATETIME NOT NULL COMMENT 'Fourni par l''application',
-    cle VARCHAR(50) NOT NULL COMMENT 'Ex: temperature, humidite, pression',
-    valeur FLOAT NOT NULL COMMENT 'Valeur mesurée',
-    INDEX idx_timestamp (timestamp),
-    INDEX idx_cle (cle),
-    INDEX idx_timestamp_cle (timestamp, cle)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- Vérification finale (optionnel)
 SHOW DATABASES LIKE 'robot%';
 SELECT User, Host FROM mysql.user WHERE User LIKE 'robot%' OR User = 'grafana_reader';
-USE robot1; DESCRIBE mesures;
 
 -- Fin du script

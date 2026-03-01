@@ -80,9 +80,9 @@
 
 | Paramètre | Valeur |
 |------------|--------|
-| Username | `robot1` |
-| Password | robot1pass |
-| Nom base | `robot1` |
+| Username | `robot3` |
+| Password | robot3pass |
+| Nom base | `robot3` |
 | Table principale | `events` |
 
 ---

@@ -10,6 +10,7 @@ import json
 import signal
 import logging
 from datetime import datetime
+from pathlib import Path
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
 import pymysql
@@ -95,7 +96,7 @@ def signal_handler(signum, frame):
 
 def main():
     logger = setup_logging()
-    load_dotenv()
+    load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 
     config = {
         'MQTT_BROKER': os.getenv('MQTT_BROKER'),

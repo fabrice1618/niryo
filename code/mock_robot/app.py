@@ -9,10 +9,11 @@ import time
 import json
 import logging
 from flask import Flask, jsonify, request
+from pathlib import Path
 from dotenv import load_dotenv
 import paho.mqtt.client as mqtt
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 
 # --- Logging ---------------------------------------------------------
 
@@ -98,8 +99,8 @@ def method_not_allowed(error):
 # --- Main ------------------------------------------------------------
 
 if __name__ == '__main__':
-    host = os.getenv('API_HOST', '0.0.0.0')
-    port = int(os.getenv('API_PORT', 3000))
+    host = os.getenv('MOCK_API_HOST', '0.0.0.0')
+    port = int(os.getenv('MOCK_API_PORT', 3000))
 
     logger.info(f"Mock robot démarré sur {host}:{port}")
     app.run(host=host, port=port, debug=False)

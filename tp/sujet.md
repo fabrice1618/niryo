@@ -131,7 +131,7 @@ Le script :
    ```
    Vous devez voir apparaître `hello world` toutes les secondes.
 4. **Modifier le message** : changer `"hello world"` par un message personnalisé, relancer et vérifier côté serveur
-5. **Modifier le topic** : utiliser un topic différent (ex : `robot1/status`), adapter la commande `mosquitto_sub` en conséquence
+5. **Modifier le topic** : utiliser un topic différent (ex : `robot3/status`), adapter la commande `mosquitto_sub` en conséquence
 
 #### Questions
 
@@ -445,14 +445,13 @@ CREATE TABLE IF NOT EXISTS events (
 
 #### Configuration
 
-Le handler utilise un fichier `.env` pour ses paramètres. Copier le modèle et l'adapter :
+Le projet utilise un fichier `.env` unique à la racine du dépôt. Si ce n'est pas déjà fait, copier le modèle et l'adapter :
 
 ```bash
-cd code/mqtt_message
-cp .env.events.example .env
+cp .env.exemple .env
 ```
 
-Contenu du fichier `.env` :
+Vérifier que les paramètres MySQL correspondent à votre robot (ici `robot3`) :
 ```ini
 # MQTT
 MQTT_BROKER=192.168.1.3
@@ -468,6 +467,8 @@ MYSQL_USER=robot3
 MYSQL_PASSWORD=robot3pass
 MYSQL_DATABASE=robot3
 ```
+
+> **Note** : ce même fichier `.env` est aussi utilisé par le mock robot (séance 3). Tous les scripts chargent la configuration depuis la racine du projet.
 
 #### Analyse du script `event_handler.py`
 
