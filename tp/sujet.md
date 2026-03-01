@@ -73,11 +73,8 @@ Mettre en oeuvre une architecture distribuée permettant :
 Un script interactif `code/diag_mqtt/diag_mqtt.py` est fourni pour faciliter les tests MQTT. Il charge automatiquement les paramètres de connexion depuis le fichier `.env` racine.
 
 ```bash
-# Activer l'environnement virtuel
-source venv/bin/activate
-
-# Lancer l'outil
-python code/diag_mqtt/diag_mqtt.py
+# Lancer l'outil (depuis la racine du projet)
+./diag_mqtt.sh
 ```
 
 Le script affiche les paramètres de connexion puis propose deux modes :
@@ -183,7 +180,7 @@ Le script :
 2. **Lancer le script** sur le robot
 3. **Diagnostiquer depuis le serveur** — Lancer l'outil de diagnostic en mode **Subscribe** avec le topic `hello` :
    ```bash
-   python code/diag_mqtt/diag_mqtt.py
+   ./diag_mqtt.sh
    ```
    Vous devez voir apparaître `hello world` toutes les secondes.
 4. **Modifier le message** : changer `"hello world"` par un message personnalisé, relancer et vérifier côté serveur
@@ -234,13 +231,13 @@ Le script :
 2. **Lancer le script** sur le robot
 3. **Envoyer un message depuis le serveur** — Lancer l'outil de diagnostic en mode **Publish**, topic `hello`, message `red` :
    ```bash
-   python code/diag_mqtt/diag_mqtt.py
+   ./diag_mqtt.sh
    ```
 4. **Tester les trois couleurs** : envoyer `red`, `green`, `blue` et observer la réaction du robot
 5. **Tester une couleur inconnue** : envoyer `yellow` et observer le message d'erreur dans la console du robot
 6. **Diagnostiquer depuis le serveur** — Dans un second terminal, observer les messages échangés avec l'outil de diagnostic en mode **Subscribe**, topic `hello` :
    ```bash
-   python code/diag_mqtt/diag_mqtt.py
+   ./diag_mqtt.sh
    ```
 
 #### Questions
@@ -354,11 +351,8 @@ Flask tourne dans un thread pour ne pas bloquer la boucle ROS principale.
 Un script interactif `code/diag_api/diag_api.py` est fourni pour faciliter les tests de l'API du robot (ou de son mock). Il charge automatiquement les paramètres de connexion depuis le fichier `.env` racine.
 
 ```bash
-# Activer l'environnement virtuel
-source venv/bin/activate
-
-# Lancer l'outil
-python code/diag_api/diag_api.py
+# Lancer l'outil (depuis la racine du projet)
+./diag_api.sh
 ```
 
 Le script affiche l'URL cible puis propose un menu :
@@ -408,7 +402,7 @@ curl -X POST http://<IP_ROBOT>:3000/color \
 Pour la suite, on utilisera l'outil `diag_api` qui simplifie les envois :
 
 ```bash
-python code/diag_api/diag_api.py
+./diag_api.sh
 ```
 
 6. **Tester les trois couleurs** via le menu interactif (choix 1, 2, 3)
@@ -418,11 +412,11 @@ python code/diag_api/diag_api.py
 
 1. **Observer les événements MQTT** — Sur le serveur, lancer l'outil de diagnostic en mode **Subscribe** (le topic par défaut `robot3/events` convient) :
    ```bash
-   python code/diag_mqtt/diag_mqtt.py
+   ./diag_mqtt.sh
    ```
 2. **Envoyer des commandes** depuis un autre terminal avec `diag_api` et observer les messages MQTT reçus :
    ```bash
-   python code/diag_api/diag_api.py
+   ./diag_api.sh
    ```
    - Un message `color_done` doit apparaître pour chaque couleur valide
    - Un message `color_error` doit apparaître pour une couleur inconnue
@@ -643,7 +637,7 @@ Le handler utilise des **requêtes paramétrées** (`%s`) pour se protéger des 
 
 3. **Depuis le serveur** — Envoyer des commandes dans un second terminal avec `diag_api` :
    ```bash
-   python code/diag_api/diag_api.py
+   ./diag_api.sh
    ```
    - Envoyer une couleur valide (choix 1, 2 ou 3)
    - Envoyer une couleur invalide (choix 4, saisir `yellow`)
@@ -656,29 +650,52 @@ Le handler utilise des **requêtes paramétrées** (`%s`) pour se protéger des 
    [2026-02-28 10:01:15] INFO Événement inséré: color_error color=yellow status=None
    ```
 
-5. **Vérifier en base de données** :
+5. **Vérifier en base de données** avec `diag_sql` :
    ```bash
-   # Afficher tous les événements
+   ./diag_sql.sh
+   ```
+   - Choix 1 : afficher les 10 derniers événements
+   - Choix 2 : compter les événements par type (`color_done`, `color_error`)
+   - Choix 3 : afficher uniquement les erreurs
+   - Choix 5 : saisie libre pour des requêtes personnalisées
+
+   Équivalent en ligne de commande (pour référence) :
+   ```bash
    mysql -u robot3 -probot3pass robot3 -e "SELECT * FROM events ORDER BY timestamp DESC;"
-
-   # Compter les événements par type
    mysql -u robot3 -probot3pass robot3 -e "SELECT event_type, COUNT(*) AS nb FROM events GROUP BY event_type;"
-
-   # Afficher les erreurs uniquement
    mysql -u robot3 -probot3pass robot3 -e "SELECT timestamp, color FROM events WHERE event_type = 'color_error';"
-
-   # Afficher les événements des 10 dernières minutes
    mysql -u robot3 -probot3pass robot3 -e "SELECT * FROM events WHERE timestamp > NOW() - INTERVAL 10 MINUTE;"
    ```
 
 6. **Test sans le robot** — On peut aussi tester le handler seul en publiant un message MQTT manuellement. Lancer l'outil de diagnostic en mode **Publish** (topic par défaut), puis coller le JSON comme message :
    ```bash
-   python code/diag_mqtt/diag_mqtt.py
+   ./diag_mqtt.sh
    ```
    Message à envoyer :
    ```json
    {"event": "color_done", "timestamp": 1709136000.0, "data": {"color": "green", "status": "success"}}
    ```
+
+---
+
+### Outil de diagnostic SQL
+
+Un script interactif `code/diag_sql/diag_sql.py` est fourni pour faciliter les requêtes SQL. Il charge automatiquement les paramètres de connexion depuis le fichier `.env` racine.
+
+```bash
+# Lancer l'outil (depuis la racine du projet)
+./diag_sql.sh
+```
+
+Le script affiche les paramètres de connexion, teste la connexion, puis propose un menu :
+
+- **Choix 1** : afficher les 10 derniers événements
+- **Choix 2** : compter les événements par type
+- **Choix 3** : afficher les erreurs uniquement
+- **Choix 4** : événements des 10 dernières minutes
+- **Choix 5** : saisie libre (n'importe quelle requête SQL)
+
+> **Note** : l'outil `diag_sql.py` remplace avantageusement les commandes `mysql -e "..."` pour les usages courants, mais la ligne de commande `mysql` reste utile pour comprendre le fonctionnement bas niveau de SQL.
 
 ---
 
@@ -692,15 +709,19 @@ Le handler utilise des **requêtes paramétrées** (`%s`) pour se protéger des 
    ```bash
    systemctl status mysql
    ```
-3. **Tester la connexion MySQL** :
+3. **Tester la connexion MySQL** avec `diag_sql` :
+   ```bash
+   ./diag_sql.sh
+   ```
+   Choisir n'importe quelle requête pour vérifier la connexion. Équivalent en ligne de commande :
    ```bash
    mysql -u robot3 -probot3pass robot3 -e "SELECT 1;"
    ```
 4. **Observer les messages MQTT en temps réel** — Lancer l'outil de diagnostic en mode **Subscribe** :
    ```bash
-   python code/diag_mqtt/diag_mqtt.py
+   ./diag_mqtt.sh
    ```
-5. **Vérifier le nombre d'enregistrements** :
+5. **Vérifier le nombre d'enregistrements** avec `diag_sql` (choix 2) ou en ligne de commande :
    ```bash
    mysql -u robot3 -probot3pass robot3 -e "SELECT COUNT(*) AS total FROM events;"
    ```
@@ -711,6 +732,7 @@ Le handler utilise des **requêtes paramétrées** (`%s`) pour se protéger des 
 - Comprendre un handler MQTT → SQL (subscriber, décodage JSON, insertion)
 - Requêtes SQL : INSERT, SELECT, COUNT, GROUP BY, WHERE
 - Diagnostiquer la chaîne complète Robot → MQTT → Handler → MySQL
+- Diagnostiquer avec `diag_sql.py`, `diag_mqtt.py` et `diag_api.py`
 - Traçabilité industrielle des actions robot
 
 ---

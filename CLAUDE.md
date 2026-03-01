@@ -37,6 +37,14 @@ This is a teaching project for B3 industrial automation students at the Techniqu
 
 ```
 code/
+├── diag_api/             # Interactive API diagnostic tool
+│   ├── diag_api.py       # POST /color test tool with color menu
+│   └── README.md
+├── diag_mqtt/            # Interactive MQTT diagnostic tool
+│   └── diag_mqtt.py      # Subscribe/Publish test tool
+├── diag_sql/             # Interactive SQL diagnostic tool
+│   ├── diag_sql.py       # MySQL query tool with predefined + free queries
+│   └── README.md
 ├── mock_robot/           # Flask API mock simulating the Niryo robot (port 3000)
 │   ├── app.py            # POST /color endpoint + MQTT event publishing
 │   ├── requirements.txt
