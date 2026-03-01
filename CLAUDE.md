@@ -15,38 +15,52 @@ This is a teaching project for B3 industrial automation students at the Techniqu
 
 ### Three-tier System
 
-1. **Robot Layer**: Niryo robotic arm controlled via Python SDK
-   - Endpoints: `/color/red`, `/color/blue`, `/color/green`, `/autocalibrate`
-   - TCP connection to robot IP address
-   - Calibration required before movement operations
+1. **Robot Layer**: Niryo robotic arm controlled via Python SDK (or mock)
+   - Mock robot (`code/mock_robot/`): Flask API on port 3000, simulates LED blink
+   - Endpoint: `POST /color` with JSON body `{"color": "red|green|blue"}`
+   - Publishes events to MQTT topic `robot3/events` after each action
+   - Real robot: TCP connection via pyniryo SDK, calibration required before movement
 
 2. **Middleware Layer**:
    - MQTT broker (Mosquitto) on port 1883 with authentication
-   - Python MQTT subscriber listening on `exemple/capteur` topic
-   - Receives JSON payloads: `{timestamp, temperature, humidite, pression}`
-   - Writes measurements to MySQL database
+   - `event_handler.py`: subscribes to `robot3/events` topic
+   - Receives JSON payloads: `{"event": "...", "timestamp": epoch, "data": {...}}`
+   - Writes events to MySQL `events` table
 
 3. **Database Layer**: MySQL with multi-robot support
    - 4 databases: `robot1`, `robot2`, `robot3`, `robot4`
    - Each robot has dedicated user (e.g., `robot1`/`robot1pass`)
    - `grafana_reader` user with SELECT on all robot databases
-   - Table structure: `mesures(mesure_id, timestamp, cle, valeur)`
+   - Table `mesures(mesure_id, timestamp, cle, valeur)` for sensor data (in robot1)
+   - Table `events(event_id, timestamp, event_type, color, status, raw_json)` for robot events
 
 ### Code Organization
 
 ```
 code/
-├── api_robot_test/       # Flask API mock for robot endpoints (testing)
-├── mqtt_message/         # MQTT subscriber + database writer
-└── website_commande/     # Flask web interface for robot commands
+├── mock_robot/           # Flask API mock simulating the Niryo robot (port 3000)
+│   ├── app.py            # POST /color endpoint + MQTT event publishing
+│   ├── requirements.txt
+│   └── README.md
+├── mqtt_message/         # MQTT subscriber → MySQL event writer
+│   ├── event_handler.py  # Subscribes to robot3/events, inserts into events table
+│   └── requirements.txt
+└── website_commande/     # Flask web interface for robot commands (TODO)
+    └── specification.md  # Spec only, no code yet
 
 database/
-└── creation.sql          # Database setup script
+├── creation.sql          # Database + users setup (4 robots, grafana_reader, mesures table)
+└── creation_events.sql   # Events table creation (for robot3)
 
 documentation/
 ├── programme_Niryo.md    # Course syllabus and pedagogical objectives
 ├── sdk.md                # Niryo SDK reference documentation
-└── config_nuc.md         # NUC server configuration
+├── config_nuc.md         # NUC server configuration
+├── config_routeur.md     # Router configuration
+├── install_package_python.md
+├── reseau.md / reseau2.md
+├── Niryo-reseau.drawio.png
+└── Niryo-Synoptique.drawio.png
 ```
 
 ## Common Commands
@@ -70,34 +84,34 @@ source creation.sql
 - TCP (Tool Center Point) must be configured for precision tasks
 - LED ring functions available for visual feedback
 
-### MQTT Message Format
+### MQTT Event Format
 
-Expected JSON structure for sensor data:
+Robot events published/consumed on topic `robot3/events`:
 ```json
-{
-  "timestamp": "YYYY-MM-DD HH:MM:SS",
-  "temperature": 23.5,
-  "humidite": 65.2,
-  "pression": 1013.25
-}
+{"event": "color_done", "timestamp": 1709136000.0, "data": {"color": "red", "status": "success"}}
+{"event": "color_error", "timestamp": 1709136000.0, "data": {"color": "yellow"}}
 ```
-
-Topic: `exemple/capteur`
 
 ### Database Schema
 
-The `mesures` table uses a flexible key-value structure:
+**`mesures` table** (robot1, sensor data — key-value structure):
 - `cle`: measurement type (e.g., "temperature", "humidite", "pression")
 - `valeur`: float measurement value
 - Indexed on `timestamp`, `cle`, and composite `(timestamp, cle)`
 
+**`events` table** (robot3, robot events from MQTT):
+- `event_type`: e.g., "color_done", "color_error"
+- `color`, `status`: extracted from event data
+- `raw_json`: full MQTT message preserved
+- Indexed on `timestamp`, `event_type`, and composite
+
 ### Flask API Endpoints
 
-Robot control endpoints (to implement or test):
-- `POST /color/red` - Execute red object sequence
-- `POST /color/blue` - Execute blue object sequence
-- `POST /color/green` - Execute green object sequence
-- `POST /autocalibrate` - Trigger automatic calibration
+Mock robot (code/mock_robot):
+- `POST /color` with body `{"color": "red|green|blue"}` — simulate LED blink + publish MQTT event
+
+Website commande (code/website_commande — not yet implemented):
+- Web UI to send commands to the robot API
 
 ### Network Configuration
 

@@ -83,7 +83,7 @@ Publisher  ──publish──►  Broker  ──deliver──►  Subscriber
 
 Paramètres de connexion :
 ```
-Broker IP   : 192.168.0.92
+Broker IP   : 192.168.1.3
 Port        : 1883
 Identifiant : mqtt
 Mot de passe : mqtt
