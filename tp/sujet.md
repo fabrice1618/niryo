@@ -349,6 +349,26 @@ flask_thread.start()
 
 Flask tourne dans un thread pour ne pas bloquer la boucle ROS principale.
 
+### Outil de diagnostic API
+
+Un script interactif `code/diag_api/diag_api.py` est fourni pour faciliter les tests de l'API du robot (ou de son mock). Il charge automatiquement les paramètres de connexion depuis le fichier `.env` racine.
+
+```bash
+# Activer l'environnement virtuel
+source venv/bin/activate
+
+# Lancer l'outil
+python code/diag_api/diag_api.py
+```
+
+Le script affiche l'URL cible puis propose un menu :
+- **Couleurs 1/2/3** : envoie `POST /color` avec `red`, `green` ou `blue`
+- **Saisie libre (4)** : permet de tester une couleur invalide (ex : `yellow`) pour observer le comportement en erreur
+
+La réponse HTTP (code + JSON) est affichée à l'écran.
+
+> **Astuce** : utilisez cet outil tout au long des séances 3 et 4 pour envoyer des commandes à l'API sans avoir à retaper les paramètres de connexion.
+
 ### Activités
 
 #### Partie 1 — Lancement et test de l'API
@@ -356,23 +376,43 @@ Flask tourne dans un thread pour ne pas bloquer la boucle ROS principale.
 1. **Lire et comprendre** le script `script7_API_mqtt.py`
 2. **Adapter les paramètres** : vérifier l'IP du broker et le topic MQTT selon votre configuration
 3. **Lancer le script** sur le robot
-4. **Tester l'API depuis le serveur** avec `curl` :
+
+##### Tester l'API avec `curl`
+
+`curl` est l'outil en ligne de commande standard pour envoyer des requêtes HTTP. Voici la syntaxe pour envoyer une commande de couleur à l'API du robot :
+
+```bash
+curl -X POST http://<IP_ROBOT>:3000/color \
+     -H "Content-Type: application/json" \
+     -d '{"color": "red"}'
+```
+
+- `-X POST` : méthode HTTP POST
+- `-H "Content-Type: application/json"` : indique que le body est du JSON
+- `-d '...'` : contenu du body (les données envoyées)
+
+4. **Tester les trois couleurs** avec `curl` :
    ```bash
-   # Envoyer la couleur rouge
-   curl -X POST http://<IP_ROBOT>:3000/color \
-        -H "Content-Type: application/json" \
-        -d '{"color": "red"}'
-   ```
-5. **Tester les trois couleurs** :
-   ```bash
+   curl -X POST http://<IP_ROBOT>:3000/color -H "Content-Type: application/json" -d '{"color": "red"}'
    curl -X POST http://<IP_ROBOT>:3000/color -H "Content-Type: application/json" -d '{"color": "green"}'
    curl -X POST http://<IP_ROBOT>:3000/color -H "Content-Type: application/json" -d '{"color": "blue"}'
    ```
-6. **Tester une erreur** — envoyer une couleur inconnue :
+5. **Tester une erreur** — envoyer une couleur inconnue :
    ```bash
    curl -X POST http://<IP_ROBOT>:3000/color -H "Content-Type: application/json" -d '{"color": "yellow"}'
    ```
    Observer le code de retour HTTP 400 et le message d'erreur JSON.
+
+##### Tester l'API avec `diag_api`
+
+Pour la suite, on utilisera l'outil `diag_api` qui simplifie les envois :
+
+```bash
+python code/diag_api/diag_api.py
+```
+
+6. **Tester les trois couleurs** via le menu interactif (choix 1, 2, 3)
+7. **Tester une erreur** via la saisie libre (choix 4) : entrer `yellow` et observer la réponse HTTP 400
 
 #### Partie 2 — Diagnostics MQTT côté serveur
 
@@ -380,7 +420,10 @@ Flask tourne dans un thread pour ne pas bloquer la boucle ROS principale.
    ```bash
    python code/diag_mqtt/diag_mqtt.py
    ```
-2. **Envoyer des commandes** depuis un autre terminal et observer les messages MQTT reçus :
+2. **Envoyer des commandes** depuis un autre terminal avec `diag_api` et observer les messages MQTT reçus :
+   ```bash
+   python code/diag_api/diag_api.py
+   ```
    - Un message `color_done` doit apparaître pour chaque couleur valide
    - Un message `color_error` doit apparaître pour une couleur inconnue
 3. **Analyser le format JSON** des messages reçus :
@@ -406,9 +449,9 @@ Flask tourne dans un thread pour ne pas bloquer la boucle ROS principale.
 ### Compétences validées
 
 - Comprendre une API REST (endpoint, méthode POST, JSON)
-- Tester une API avec `curl`
+- Tester une API avec `curl` et `diag_api`
 - Observer la chaîne complète HTTP → Flask → Robot → MQTT
-- Diagnostiquer avec `diag_mqtt.py` et `curl`
+- Diagnostiquer avec `diag_mqtt.py` et `diag_api.py`
 - Comprendre le threading Python pour Flask
 
 ---
@@ -598,18 +641,12 @@ Le handler utilise des **requêtes paramétrées** (`%s`) pour se protéger des 
    python3 script7_API_mqtt.py
    ```
 
-3. **Depuis le serveur** — Envoyer des commandes dans un second terminal :
+3. **Depuis le serveur** — Envoyer des commandes dans un second terminal avec `diag_api` :
    ```bash
-   # Commande réussie
-   curl -X POST http://<IP_ROBOT>:3000/color \
-        -H "Content-Type: application/json" \
-        -d '{"color": "red"}'
-
-   # Commande en erreur
-   curl -X POST http://<IP_ROBOT>:3000/color \
-        -H "Content-Type: application/json" \
-        -d '{"color": "yellow"}'
+   python code/diag_api/diag_api.py
    ```
+   - Envoyer une couleur valide (choix 1, 2 ou 3)
+   - Envoyer une couleur invalide (choix 4, saisir `yellow`)
 
 4. **Observer les logs du handler** — Vous devez voir :
    ```

@@ -45,12 +45,6 @@ python3 app.py
 
 Simule le clignotement LED dans la couleur demandée.
 
-```bash
-curl -X POST http://localhost:3000/color \
-     -H "Content-Type: application/json" \
-     -d '{"color": "red"}'
-```
-
 Couleurs acceptées : `red`, `green`, `blue`.
 
 Réponse succès (200) :
@@ -62,6 +56,46 @@ Réponse erreur (400) :
 ```json
 {"error": "Couleur inconnue"}
 ```
+
+## Tester l'API
+
+### Avec curl
+
+`curl` est l'outil en ligne de commande standard pour envoyer des requêtes HTTP.
+
+Envoyer une couleur valide :
+```bash
+curl -X POST http://localhost:3000/color \
+     -H "Content-Type: application/json" \
+     -d '{"color": "red"}'
+```
+
+Tester une couleur invalide :
+```bash
+curl -X POST http://localhost:3000/color \
+     -H "Content-Type: application/json" \
+     -d '{"color": "yellow"}'
+```
+
+Tester sans body (erreur 400) :
+```bash
+curl -X POST http://localhost:3000/color \
+     -H "Content-Type: application/json" \
+     -d '{}'
+```
+
+### Avec diag_api (recommandé)
+
+L'outil `diag_api` (dans `code/diag_api/`) est un script interactif dédié au diagnostic de l'API robot. Il affiche la configuration, propose les couleurs disponibles, et formate la réponse. C'est l'outil recommandé pour les TP.
+
+```bash
+cd code/diag_api
+python3 diag_api.py
+```
+
+L'outil lit la configuration depuis le fichier `.env` à la racine du projet (variables `MOCK_API_HOST` et `MOCK_API_PORT`).
+
+Voir le [README de diag_api](../diag_api/README.md) pour plus de détails.
 
 ## Messages MQTT publiés
 
@@ -75,14 +109,11 @@ Chaque action publie un événement JSON sur le topic configuré :
 {"event": "color_error", "timestamp": 1709136000.0, "data": {"color": "yellow"}}
 ```
 
-```json
-{"event": "calibration_done", "timestamp": 1709136000.0, "data": {"status": "success"}}
-```
-
 ## Vérification
 
 Observer les messages MQTT publiés par le mock :
 
 ```bash
-mosquitto_sub -h localhost -p 1883 -t "robot3/events" -u nuc -P nuc
+cd code/diag_mqtt
+python3 diag_mqtt.py
 ```
