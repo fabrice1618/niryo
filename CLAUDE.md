@@ -31,7 +31,6 @@ This is a teaching project for B3 industrial automation students at the Techniqu
    - 4 databases: `robot1`, `robot2`, `robot3`, `robot4`
    - Each robot has dedicated user (e.g., `robot1`/`robot1pass`)
    - `grafana_reader` user with SELECT on all robot databases
-   - Table `mesures(mesure_id, timestamp, cle, valeur)` for sensor data (in robot1)
    - Table `events(event_id, timestamp, event_type, color, status, raw_json)` for robot events
 
 ### Code Organization
@@ -93,11 +92,6 @@ Robot events published/consumed on topic `robot3/events`:
 ```
 
 ### Database Schema
-
-**`mesures` table** (robot1, sensor data — key-value structure):
-- `cle`: measurement type (e.g., "temperature", "humidite", "pression")
-- `valeur`: float measurement value
-- Indexed on `timestamp`, `cle`, and composite `(timestamp, cle)`
 
 **`events` table** (robot3, robot events from MQTT):
 - `event_type`: e.g., "color_done", "color_error"

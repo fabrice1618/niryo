@@ -68,6 +68,62 @@ Mettre en oeuvre une architecture distribuée permettant :
 - Faire réagir le robot à des messages reçus (subscriber)
 - Diagnostiquer les échanges MQTT depuis le serveur
 
+### Outil de diagnostic MQTT
+
+Un script interactif `code/diag_mqtt/diag_mqtt.py` est fourni pour faciliter les tests MQTT. Il charge automatiquement les paramètres de connexion depuis le fichier `.env` racine.
+
+```bash
+# Activer l'environnement virtuel
+source venv/bin/activate
+
+# Lancer l'outil
+python code/diag_mqtt/diag_mqtt.py
+```
+
+Le script affiche les paramètres de connexion puis propose deux modes :
+- **Subscribe** (1) : écoute un topic et affiche les messages reçus en temps réel (Ctrl+C pour arrêter)
+- **Publish** (2) : envoie un message unique sur un topic
+
+Le topic par défaut est celui configuré dans `.env` (`robot3/events`), modifiable à chaque lancement.
+
+> **Astuce** : utilisez cet outil tout au long des séances 2 à 4 pour diagnostiquer rapidement les échanges MQTT sans avoir à retaper les paramètres de connexion.
+
+### Commandes Mosquitto en ligne de commande
+
+Le broker Mosquitto fournit deux commandes utiles pour interagir manuellement avec MQTT depuis un terminal :
+
+**`mosquitto_sub`** — s'abonner à un topic et afficher les messages reçus :
+```bash
+mosquitto_sub -h <broker> -p <port> -t "<topic>" -u <user> -P <password>
+```
+- `-h` : adresse du broker (ex : `localhost` ou `192.168.1.3`)
+- `-p` : port du broker (par défaut `1883`)
+- `-t` : topic à écouter (ex : `hello`, `robot3/events`)
+- `-u` / `-P` : identifiant et mot de passe
+- `-v` : mode verbeux, affiche le nom du topic devant chaque message
+- La commande reste active jusqu'à Ctrl+C
+
+**`mosquitto_pub`** — publier un message unique sur un topic :
+```bash
+mosquitto_pub -h <broker> -p <port> -t "<topic>" -u <user> -P <password> -m "<message>"
+```
+- `-m` : contenu du message à envoyer (texte ou JSON)
+- Les autres options sont identiques à `mosquitto_sub`
+
+**Exemple avec les paramètres du TP :**
+```bash
+# Écouter le topic hello
+mosquitto_sub -h localhost -p 1883 -t "hello" -u mqtt -P mqtt
+
+# Publier un message sur le topic hello
+mosquitto_pub -h localhost -p 1883 -t "hello" -u mqtt -P mqtt -m "red"
+
+# Écouter les événements du robot (topic par défaut du projet)
+mosquitto_sub -h localhost -p 1883 -t "robot3/events" -u nuc -P nuc -v
+```
+
+> **Note** : l'outil `diag_mqtt.py` remplace avantageusement ces commandes pour les usages courants, mais `mosquitto_sub` / `mosquitto_pub` restent utiles pour comprendre le fonctionnement bas niveau de MQTT.
+
 ### Rappel théorique
 
 MQTT fonctionne sur un modèle **publish/subscribe** :
@@ -125,13 +181,13 @@ Le script :
 
 1. **Lire et comprendre** le script `script4_mqtt_send.py`
 2. **Lancer le script** sur le robot
-3. **Diagnostiquer depuis le serveur** — Ouvrir un terminal sur le serveur et s'abonner au topic pour vérifier la réception :
+3. **Diagnostiquer depuis le serveur** — Lancer l'outil de diagnostic en mode **Subscribe** avec le topic `hello` :
    ```bash
-   mosquitto_sub -h localhost -p 1883 -t "hello" -u mqtt -P mqtt
+   python code/diag_mqtt/diag_mqtt.py
    ```
    Vous devez voir apparaître `hello world` toutes les secondes.
 4. **Modifier le message** : changer `"hello world"` par un message personnalisé, relancer et vérifier côté serveur
-5. **Modifier le topic** : utiliser un topic différent (ex : `robot3/status`), adapter la commande `mosquitto_sub` en conséquence
+5. **Modifier le topic** : utiliser un topic différent (ex : `robot3/status`), adapter le topic dans l'outil de diagnostic en conséquence
 
 #### Questions
 
@@ -176,15 +232,15 @@ Le script :
 
 1. **Lire et comprendre** le script `script5_mqtt_receive.py`
 2. **Lancer le script** sur le robot
-3. **Envoyer un message depuis le serveur** — Ouvrir un terminal et publier une couleur :
+3. **Envoyer un message depuis le serveur** — Lancer l'outil de diagnostic en mode **Publish**, topic `hello`, message `red` :
    ```bash
-   mosquitto_pub -h localhost -p 1883 -t "hello" -u mqtt -P mqtt -m "red"
+   python code/diag_mqtt/diag_mqtt.py
    ```
 4. **Tester les trois couleurs** : envoyer `red`, `green`, `blue` et observer la réaction du robot
 5. **Tester une couleur inconnue** : envoyer `yellow` et observer le message d'erreur dans la console du robot
-6. **Diagnostiquer depuis le serveur** — Dans un second terminal, observer les messages échangés :
+6. **Diagnostiquer depuis le serveur** — Dans un second terminal, observer les messages échangés avec l'outil de diagnostic en mode **Subscribe**, topic `hello` :
    ```bash
-   mosquitto_sub -h localhost -p 1883 -t "hello" -u mqtt -P mqtt -v
+   python code/diag_mqtt/diag_mqtt.py
    ```
 
 #### Questions
@@ -198,7 +254,7 @@ Le script :
 - Comprendre le modèle publish/subscribe
 - Configurer un client MQTT avec authentification
 - Publier et recevoir des messages MQTT
-- Diagnostiquer les échanges MQTT avec `mosquitto_pub` et `mosquitto_sub`
+- Diagnostiquer les échanges MQTT avec `diag_mqtt.py`
 - Comprendre les callbacks MQTT (`on_connect`, `on_message`)
 
 ---
@@ -320,9 +376,9 @@ Flask tourne dans un thread pour ne pas bloquer la boucle ROS principale.
 
 #### Partie 2 — Diagnostics MQTT côté serveur
 
-1. **Observer les événements MQTT** — Sur le serveur, s'abonner au topic du robot :
+1. **Observer les événements MQTT** — Sur le serveur, lancer l'outil de diagnostic en mode **Subscribe** (le topic par défaut `robot3/events` convient) :
    ```bash
-   mosquitto_sub -h localhost -p 1883 -t "robot3/events" -u nuc -P nuc
+   python code/diag_mqtt/diag_mqtt.py
    ```
 2. **Envoyer des commandes** depuis un autre terminal et observer les messages MQTT reçus :
    - Un message `color_done` doit apparaître pour chaque couleur valide
@@ -338,9 +394,6 @@ Flask tourne dans un thread pour ne pas bloquer la boucle ROS principale.
 
    # Vérifier que le port 3000 du robot est accessible
    curl -s -o /dev/null -w "%{http_code}" http://<IP_ROBOT>:3000/color
-
-   # Lister les clients connectés au broker
-   mosquitto_sub -h localhost -p 1883 -t '$SYS/broker/clients/connected' -u nuc -P nuc
    ```
 
 #### Questions
@@ -355,7 +408,7 @@ Flask tourne dans un thread pour ne pas bloquer la boucle ROS principale.
 - Comprendre une API REST (endpoint, méthode POST, JSON)
 - Tester une API avec `curl`
 - Observer la chaîne complète HTTP → Flask → Robot → MQTT
-- Diagnostiquer avec `mosquitto_sub` et `curl`
+- Diagnostiquer avec `diag_mqtt.py` et `curl`
 - Comprendre le threading Python pour Flask
 
 ---
@@ -581,10 +634,13 @@ Le handler utilise des **requêtes paramétrées** (`%s`) pour se protéger des 
    mysql -u robot3 -probot3pass robot3 -e "SELECT * FROM events WHERE timestamp > NOW() - INTERVAL 10 MINUTE;"
    ```
 
-6. **Test sans le robot** — On peut aussi tester le handler seul en publiant un message MQTT manuellement :
+6. **Test sans le robot** — On peut aussi tester le handler seul en publiant un message MQTT manuellement. Lancer l'outil de diagnostic en mode **Publish** (topic par défaut), puis coller le JSON comme message :
    ```bash
-   mosquitto_pub -h localhost -p 1883 -t "robot3/events" -u nuc -P nuc \
-     -m '{"event": "color_done", "timestamp": 1709136000.0, "data": {"color": "green", "status": "success"}}'
+   python code/diag_mqtt/diag_mqtt.py
+   ```
+   Message à envoyer :
+   ```json
+   {"event": "color_done", "timestamp": 1709136000.0, "data": {"color": "green", "status": "success"}}
    ```
 
 ---
@@ -603,9 +659,9 @@ Le handler utilise des **requêtes paramétrées** (`%s`) pour se protéger des 
    ```bash
    mysql -u robot3 -probot3pass robot3 -e "SELECT 1;"
    ```
-4. **Observer les messages MQTT en temps réel** (dans un terminal séparé) :
+4. **Observer les messages MQTT en temps réel** — Lancer l'outil de diagnostic en mode **Subscribe** :
    ```bash
-   mosquitto_sub -h localhost -p 1883 -t "robot3/events" -u nuc -P nuc -v
+   python code/diag_mqtt/diag_mqtt.py
    ```
 5. **Vérifier le nombre d'enregistrements** :
    ```bash
