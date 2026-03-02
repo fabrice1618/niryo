@@ -32,6 +32,15 @@ GRANT SELECT ON robot4.* TO 'grafana_reader'@'localhost';
 -- Appliquer les privilèges
 FLUSH PRIVILEGES;
 
+CREATE USER IF NOT EXISTS 'grafana_reader'@'%' IDENTIFIED BY 'GRAFpass123';
+GRANT SELECT ON robot1.* TO 'grafana_reader'@'%';
+GRANT SELECT ON robot2.* TO 'grafana_reader'@'%';
+GRANT SELECT ON robot3.* TO 'grafana_reader'@'%';
+GRANT SELECT ON robot4.* TO 'grafana_reader'@'%';
+
+FLUSH PRIVILEGES;
+
+
 -- Vérification finale (optionnel)
 SHOW DATABASES LIKE 'robot%';
 SELECT User, Host FROM mysql.user WHERE User LIKE 'robot%' OR User = 'grafana_reader';

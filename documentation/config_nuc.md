@@ -48,3 +48,20 @@ $ eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
 $ cat ~/.ssh/id_ed25519.pub
 ```
+
+## Install grafana
+
+```
+sudo snap install docker
+sudo docker compose up -d
+
+sudo ufw allow 3306
+```
+
+accès grafana http://192.168.1.3:4000
+
+login grafana:
+login: admin
+password: }Ff$3Ufq^]PS++#
+
+
