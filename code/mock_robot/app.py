@@ -99,8 +99,7 @@ def method_not_allowed(error):
 # --- Main ------------------------------------------------------------
 
 if __name__ == '__main__':
-    host = os.getenv('MOCK_API_HOST', '0.0.0.0')
     port = int(os.getenv('MOCK_API_PORT', 3000))
 
-    logger.info(f"Mock robot démarré sur {host}:{port}")
-    app.run(host=host, port=port, debug=False)
+    logger.info(f"Mock robot démarré sur localhost:{port}")
+    app.run(host='0.0.0.0', port=port, debug=False)

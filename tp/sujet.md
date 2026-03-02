@@ -440,10 +440,76 @@ Pour la suite, on utilisera l'outil `diag_api` qui simplifie les envois :
 - Que se passe-t-il si deux requêtes HTTP arrivent en même temps ?
 - Quelle est la différence entre les codes HTTP 200 et 400 retournés par l'API ?
 
+### Partie 3 — Site web de pilotage
+
+#### Objectif
+
+Utiliser une interface web pour envoyer des commandes couleur au robot, au lieu de `curl` ou `diag_api`.
+
+#### Architecture
+
+```
+Navigateur  ──GET /──►  Flask (port 5000)  ──page HTML──►  Navigateur
+Navigateur  ──POST /send_color──►  Flask  ──POST /color──►  Robot API (port 3000)
+```
+
+Le site Flask (port 5000) sert de **proxy** : il relaie les commandes du navigateur vers l'API du robot (port 3000).
+
+#### Activités
+
+1. **Lancer le mock robot** (ou le robot réel) dans un premier terminal :
+   ```bash
+   ./run_mock.sh
+   ```
+
+2. **Lancer le site web** dans un second terminal :
+   ```bash
+   ./website_pilotage.sh
+   ```
+   Sortie attendue :
+   ```
+   [2026-03-01 10:00:00] INFO Robot cible : http://localhost:3000
+   [2026-03-01 10:00:00] INFO Site web démarré sur http://localhost:5000
+   ```
+
+3. **Ouvrir le navigateur** à l'adresse http://localhost:5000
+
+4. **Tester les boutons** Rouge, Vert, Bleu — observer la réponse JSON affichée en bas de page
+
+5. **Tester avec une IP invalide** pour observer la gestion d'erreur :
+   ```bash
+   python code/website_pilotage/app.py --robot-ip 10.0.0.99
+   ```
+   Cliquer sur un bouton → le message "Robot non joignable" doit s'afficher.
+
+6. **Cibler le robot réel** (si disponible) :
+   ```bash
+   python code/website_pilotage/app.py --robot-ip 192.168.1.10
+   ```
+
+#### Analyse du code
+
+Ouvrir `code/website_pilotage/app.py` et identifier :
+- Comment Flask sert la page HTML (`render_template`)
+- Comment la route `/send_color` relaie la requête vers l'API robot (`requests.post`)
+- Comment les erreurs de connexion sont gérées (`ConnectionError`, `Timeout`)
+
+Ouvrir `code/website_pilotage/templates/index.html` et identifier :
+- Les boutons HTML et leur attribut `onclick`
+- La fonction JavaScript `sendColor()` qui fait un appel `fetch`
+- La zone de réponse mise à jour dynamiquement
+
+#### Questions
+
+- Pourquoi le site Flask ne contacte-t-il pas directement le robot depuis le navigateur ?
+- Quel est l'avantage d'un proxy côté serveur par rapport à un appel direct depuis JavaScript ?
+- Comment pourrait-on ajouter un quatrième bouton pour une nouvelle couleur ?
+
 ### Compétences validées
 
 - Comprendre une API REST (endpoint, méthode POST, JSON)
 - Tester une API avec `curl` et `diag_api`
+- Piloter le robot via une interface web
 - Observer la chaîne complète HTTP → Flask → Robot → MQTT
 - Diagnostiquer avec `diag_mqtt.py` et `diag_api.py`
 - Comprendre le threading Python pour Flask

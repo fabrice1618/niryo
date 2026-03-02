@@ -54,8 +54,6 @@ Réponse HTTP 200 :
 L'outil lit le fichier `.env` à la racine du projet :
 
 ```ini
-MOCK_API_HOST=localhost
-MOCK_API_PORT=3000
+DIAG_API_PORT=3000
+DIAG_API_HOST=localhost
 ```
-
-> **Note** : `MOCK_API_HOST` vaut `0.0.0.0` dans le `.env` par défaut (pour le serveur). Pour le client `diag_api`, la valeur par défaut `localhost` convient si le mock tourne sur la même machine. Modifiez `MOCK_API_HOST` dans le `.env` ou lancez le script depuis la machine qui héberge le mock.

@@ -12,12 +12,10 @@ import requests
 load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 
 # Lire config
-API_HOST = os.getenv("API_TARGET_HOST", os.getenv("MOCK_API_HOST", "localhost"))
-# 0.0.0.0 est une adresse de bind serveur, côté client on utilise localhost
-if API_HOST == "0.0.0.0":
-    API_HOST = "localhost"
-API_PORT = int(os.getenv("MOCK_API_PORT", 3000))
-BASE_URL = f"http://{API_HOST}:{API_PORT}"
+diag_api = os.getenv("DIAG_API_HOST", "localhost")
+diag_port = int(os.getenv("DIAG_API_PORT", 3000))
+
+BASE_URL = f"http://{diag_api}:{diag_port}"
 
 VALID_COLORS = ["red", "green", "blue"]
 

@@ -52,8 +52,14 @@ code/
 ├── mqtt_message/         # MQTT subscriber → MySQL event writer
 │   ├── event_handler.py  # Subscribes to robot3/events, inserts into events table
 │   └── requirements.txt
-└── website_commande/     # Flask web interface for robot commands (TODO)
-    └── specification.md  # Spec only, no code yet
+├── website_commande/     # Flask web interface for robot commands (TODO)
+│   └── specification.md  # Spec only, no code yet
+└── website_pilotage/     # Flask web interface for robot piloting (port 5000)
+    ├── app.py            # Proxy vers API robot + sert le template HTML
+    ├── templates/
+    │   └── index.html    # Page Bootstrap avec boutons couleur
+    ├── requirements.txt
+    └── README.md
 
 database/
 ├── creation.sql          # Database + users setup (4 robots, grafana_reader, mesures table)

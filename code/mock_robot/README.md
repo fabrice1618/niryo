@@ -22,8 +22,8 @@ pip install -r requirements.txt
 
 ```ini
 # Flask
-API_HOST=0.0.0.0
-API_PORT=3000
+MOCK_API_HOST=0.0.0.0
+MOCK_API_PORT=3000
 
 # MQTT
 MQTT_BROKER=192.168.1.3
@@ -93,7 +93,7 @@ cd code/diag_api
 python3 diag_api.py
 ```
 
-L'outil lit la configuration depuis le fichier `.env` à la racine du projet (variables `MOCK_API_HOST` et `MOCK_API_PORT`).
+L'outil lit la configuration depuis le fichier `.env` à la racine du projet (variable `MOCK_API_PORT`).
 
 Voir le [README de diag_api](../diag_api/README.md) pour plus de détails.
 
